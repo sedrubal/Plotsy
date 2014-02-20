@@ -1,4 +1,3 @@
-
 """
 The Module Itself
 
@@ -24,3 +23,7 @@ class Plotsy():
 	def draw(self):
 		for i in range(self.size[1]):
 		    print("".join(str(x) for x in self.graph[i]))
+		    
+	#Clear the graph
+	def clear(self):
+		self.graph = [[self.background] * self.size[1] for _ in range(self.size[0])]
