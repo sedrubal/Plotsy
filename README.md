@@ -3,8 +3,9 @@ Plotsy
 
 Lightweight ASCII plotting module for python
 
-Files: plotsy.py - the actual module
-       plotsy_example.py - example using Plotsy
+Files: 
+plotsy.py - the actual module
+plotsy_example.py - example using Plotsy
 
 Documentation (I am new to writing docs, please help make the docs better):
 
