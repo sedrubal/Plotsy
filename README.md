@@ -23,7 +23,7 @@ Documentation (I am new to writing docs, please help make the docs better):
     object.draw()
         Print out the graph. Takes no parameters.
         
-    object.draw()
+    object.clear()
         Clear the graph. Takes no parameters.
 
 If you find a bug or can make a small change to make the module better, please fork this repo and commit your idea!
