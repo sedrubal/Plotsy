@@ -3,6 +3,9 @@ Plotsy
 
 Lightweight ASCII plotting module for python
 
+Files: plotsy.py - the actual module
+       plotsy_example.py - example using Plotsy
+
 Documentation (I am new to writing docs, please help make the docs better):
 
     object.config((x, y)[, str])
@@ -19,5 +22,8 @@ Documentation (I am new to writing docs, please help make the docs better):
         
     object.draw()
         Print out the graph. Takes no parameters.
+        
+    object.draw()
+        Clear the graph. Takes no parameters.
 
 If you find a bug or can make a small change to make the module better, please fork this repo and commit your idea!
