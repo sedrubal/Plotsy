@@ -12,6 +12,8 @@ class Plotsy():
 	def config(self, size, background = " "):
 		#Make "size" useable throughout the object for math
 		self.size = size
+		#Make  "background" usable throught the object
+		self.background = background
 		#Create the grid
 		self.graph = [[background] * self.size[1] for _ in range(self.size[0])]
 
