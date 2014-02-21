@@ -23,8 +23,8 @@ class Plotsy():
 
 	#Draw the graph.
 	def draw(self):
-		for i in range(self.size[1]):
-		    print("".join(str(x) for x in self.graph[i]))
+		for i in self.graph:
+		    print("".join(str(x) for x in i))
 		    
 	#Clear the graph
 	def clear(self):
