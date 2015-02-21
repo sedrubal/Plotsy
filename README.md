@@ -1,29 +1,62 @@
 Plotsy
 ======
 
-Lightweight ASCII plotting module for python
+Lightweight ASCII (/UTF8) plotting module for python
 
-Files: 
-plotsy.py - the actual module
+Files:
+------
+ - [plotsy.py](plotsy.py) - the actual module
+ - [plotsy_example.py](plotsy_example.py) - an example
 
-Documentation (I am new to writing docs, please help make the docs better):
+Documentation
+-------------
 
-    object.config((x, y)[, str])
-        Define info about the graph. There are two parameters, one of which is optional.
-        The first parameter is the height and width of the graph. This is written as a
-        list or tuple, like [x, y]. The second, optional, parameter is the background.
-        The background is an ASCII character, like "@" or " ". The default is " ".
-        
-    object.plot((x, y)[, str])
-        Plot a point on the graph. There are two parameters, one of which is optional.
-        The first parameter is the x and y or the point, written as a list or tuple,
-        like [x, y]. The second, optional, parameter is the icon that is plotted. This
-        is an ASCII character, like "@" or "#". The default is "#".
-        
-    object.draw()
-        Print out the graph. Takes no parameters.
-        
-    object.clear()
-        Clear the graph. Takes no parameters.
+See the [example](plotsy_example.py) and the documentation comments in [plotsy.py](plotsy.py)
+
+Example Plot
+------------
+
+This is a black and white output of [plotsy_example.py](plotsy_example.py). It might be a bit confusing. Please inspect the script anyway. It's quite simple ;)
+
+```bash
+––––––––––––––––––––––––––––––
+|                            |
+|                            |
+|   +–––––––––––+            |
+|   |HELLO WORLD|            |
+|   +–––––––––––+            |
+|                            |
+|                            |
+|                            |
+|                            |
+|                            |
+|                            |
+|                            |
+|   #                        |
+|                            |
+|                            |
+|                            |
+|                            |
+|10                    max=10|
+|––––––––––––––––––––––––––––|
+| 8#                         |
+| .7                         |
+|  .6      66        #       |
+|   .5    5..       555      |
+|    .   4.  4     4...44@   |
+| #   333.   .3 @33.   ..    |
+|     ...@    . 2..      2   |
+|   @          1.        .#  |
+|#             .          000|
+––––––––––––––––––––––––––...–
+```
+
+Contribute
+----------
 
 If you find a bug or can make a small change to make the module better, please fork this repo and commit your idea!
+
+License
+-------
+
+[MIT](LICENSE.md)
