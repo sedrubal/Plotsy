@@ -10,19 +10,24 @@ Source code stuffies:
 """
 
 from plotsy_color import *
+from os import popen
 
 
 class Plotsy():
-    def __init__(self, width, height, background=" "):
+    def __init__(self, width=0, height=0, background=" "):
         """
         The constructor
-        :param width: int: the width of the drawing area
-        :param height: int: the height of the drawing area
+        :param width: int: optional: the width of the drawing area (default: the terminal width)
+                                     if it is less than 0, the width will be the terminal width - width
+        :param height: int: optional: the height of the drawing area (default: the terminal height)
+                                     if it is less than 0, the height will be the terminal height - height
         :param background: the characters for the background
         """
+        # Get the terminal size
+        rows, columns = popen('stty size', 'r').read().split()
         # Make "size" usable throughout the object for math
-        self.width = int(width)
-        self.height = int(height)
+        self.width = int(columns) + int(width) if int(width) <= 0 else int(width)
+        self.height = int(rows) + int(height) if int(height) <= 0 else int(height)
         # Make  "background" usable through the object
         self.background = background
         # Create the grid
@@ -40,8 +45,9 @@ class Plotsy():
         :param fg_color: COLOR: optional: the fore color of the plot
         :param bg_color: COLOR: optional: the back color of the plot
         """
-        if x < self.width and self.height - y - 1 < self.width:
-            self.graph[self.width - y - 1][x] = \
+        y_coord = self.height - y - 1
+        if 0 <= x < self.width and 0 <= y_coord < self.width:
+            self.graph[y_coord][x] = \
                 Color.to_ansi(fg_color) + Color.to_ansi(bg_color, False) + icon + \
                 Color.to_ansi(Color.RESET) + Color.to_ansi(Color.RESET, False)
 
