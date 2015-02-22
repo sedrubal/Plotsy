@@ -6,6 +6,7 @@ Lightweight ASCII (/UTF8) plotting module for python
 Files:
 ------
  - [plotsy.py](plotsy.py) - the actual module
+ - [plotsy_color.py](plotsy_color.py) - colors
  - [plotsy_example.py](plotsy_example.py) - an example
 
 Documentation
@@ -30,25 +31,25 @@ This is a black and white output of [plotsy_example.py](plotsy_example.py). It m
 |                            |
 |                            |
 |                            |
-|                            |
-|                            |
-|   #                        |
+| supported colors:          |
+| fffffffffffffffff          |
+| bbbbbbbbbbbbbbbbb          |
 |                            |
 |                            |
 |                            |
 |                            |
 |10                    max=10|
 |––––––––––––––––––––––––––––|
-| 8#                         |
-| .7                         |
-|  .6      66        #       |
-|   .5    5..       555      |
-|    .   4.  4     4...44@   |
-| #   333.   .3 @33.   ..    |
-|     ...@    . 2..      2   |
-|   @          1.        .#  |
-|#             .          000|
-––––––––––––––––––––––––––...–
+| 88                         |
+| ..                         |
+|   6    6           #       |
+|   .5555.            #      |
+|    .... 4            # @   |
+| #       .33   @       #    |
+|        @ ..2          2#2  |
+|   @        .1       11.1.  |
+|#            .00 0000.. . 00|
+–––––––––––––––..-....–––––..–
 ```
 
 Contribute

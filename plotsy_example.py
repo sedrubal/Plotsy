@@ -2,7 +2,7 @@
 # coding=utf-8
 
 from plotsy import *
-from color import *
+from plotsy_color import *
 
 # Define the drawing area
 graph = Plotsy(width=30, height=30, background=

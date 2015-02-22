@@ -9,7 +9,7 @@ Source code stuffies:
     those lists are for the X coordinate.
 """
 
-from color import *
+from plotsy_color import *
 
 
 class Plotsy():
