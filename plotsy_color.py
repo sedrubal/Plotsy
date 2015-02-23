@@ -64,3 +64,5 @@ class Color(Enum):
             return Fore.LIGHTCYAN_EX if foreground else Back.LIGHTCYAN_EX
         elif color == Color.LIGHTWHITE_EX:
             return Fore.LIGHTWHITE_EX if foreground else Back.LIGHTWHITE_EX
+        else:
+            return color

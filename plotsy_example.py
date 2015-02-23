@@ -31,7 +31,7 @@ max_val = old
 for i in range(28):
     graph.plot(x=1 + i, y=old, icon='.', fg_color=Color.RED, bg_color=Color.GREEN)
     graph.label(x=1 + i, y=old + 1, text=str(old), fg_color=Color.RESET, bg_color=Color.BLUE)
-    old = int(old - 2 + 4 * random.random())
+    old = max(0, int(old - 2 + 4 * random.random()))
     max_val = max(max_val, old)
 
 # draw a vertical line. This is the maximum of the random output

@@ -1,7 +1,7 @@
 Plotsy
 ======
 
-Lightweight ASCII (/UTF8) plotting module for python
+ASCII plotting module for python
 
 Files:
 ------
