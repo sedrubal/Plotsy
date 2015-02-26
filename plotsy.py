@@ -11,6 +11,7 @@ Source code stuffies:
 
 from plotsy_color import *
 from os import popen
+from math import log10, ceil
 
 
 class Plotsy():
@@ -31,13 +32,15 @@ class Plotsy():
         :param background: the characters for the background
         """
         # <editor-fold desc="Get the terminal size">
-        rows, columns = 0, 0
+        rows, columns = max_height, max_width
         if int(width) <= 0 or int(height) <= 0:
-            if len(popen('stty size', 'r').read()) == 0:
+            term_size = popen('stty size', 'r').read()
+            if len(term_size) == 0:
                 from logging import critical
                 critical("This has to be executed in a terminal.")
-                exit(1)
-            rows, columns = popen('stty size', 'r').read().split()
+                # exit(1)
+            else:
+                rows, columns = term_size.split()
         # </editor-fold>
         # Make "size" usable throughout the object for math
         self.width = min(int(max_width), int(columns) + int(width)) if int(width) <= 0 else int(width)
@@ -68,9 +71,10 @@ class Plotsy():
                 Color.to_ansi(Color.RESET) + Color.to_ansi(Color.RESET, False)
         else:
             from logging import warning
+
             warning("This plot was out of bounce: '{i}' on position ({x}| {y})".format(x=x, y=y, i=icon))
 
-    def label(self, x, y, text, fg_color=Color.RESET, bg_color=Color.RESET):
+    def plot_label(self, x, y, text, fg_color=Color.RESET, bg_color=Color.RESET):
         """
         adds a text to the graph
         :type x: int
@@ -88,49 +92,53 @@ class Plotsy():
             self.plot(x, y, c, fg_color, bg_color)
             x += 1
 
-    def draw_h_line(self, x1, x2, y, icon='–', fg_color=Color.RESET, bg_color=Color.RESET):
+    def plot_h_line(self, y, x1=0, x2=0, icon='–', fg_color=Color.RESET, bg_color=Color.RESET):
         """
         Draw a horizontal line
         :type x1: int
         :type x2: int
         :type y: int
-        :type icon: unichar
+        :type icon: chr
         :type fg_color: Color
         :type bg_color: Color
         :param x1: the first x coordinate (the start)
-        :param x2: the second x coordinate (the end)
+        :param x2: the second x coordinate (the end). If it is smaller than 1, x2 = height - |x2|
         :param y: the y coordinate of the line
         :param icon: icon for the line
         :param fg_color: optional: the fore color of the line
         :param bg_color: optional: the back color of the line
         """
+        if x2 < 1:
+            x2 = self.width + x2
         if x1 > x2:
             x1, x2 = x2, x1  # swap
         for x in range(x1, x2):
             self.plot(x, y, icon, fg_color, bg_color)
 
-    def draw_v_line(self, x, y1, y2, icon='|', fg_color=Color.RESET, bg_color=Color.RESET):
+    def plot_v_line(self, x, y1=0, y2=0, icon='|', fg_color=Color.RESET, bg_color=Color.RESET):
         """
         Draw a vertical line
         :type x: int
         :type y1: int
         :type y2: int
-        :type icon: unichar
+        :type icon: chr
         :type fg_color: Color
         :type bg_color: Color
         :param x: the x coordinate of the line
         :param y1: the first y coordinate (the start)
-        :param y2: the second y coordinate (the end)
+        :param y2: the second y coordinate (the end). If it is smaller than 1, y2 = height - |y2|
         :param icon: icon for the line
         :param fg_color: optional: the fore color of the line
         :param bg_color: optional: the back color of the line
         """
+        if y2 < 1:
+            y2 = self.height + y2
         if y1 > y2:
             y1, y2 = y2, y1  # swap
         for y in range(y1, y2):
             self.plot(x, y, icon, fg_color, bg_color)
 
-    def draw_rect(self, x, y, width, height,
+    def plot_rect(self, x, y, width, height,
                   v_icon='|', h_icon='–', tl_icon='+', tr_icon='+', bl_icon='+', br_icon='+',
                   fg_color=Color.RESET, bg_color=Color.RESET):
         """
@@ -165,40 +173,130 @@ class Plotsy():
             raise Exception('The width and the height must be at least 1')
         width -= 1
         height -= 1
-        self.draw_h_line(x, x + width, y, h_icon, fg_color, bg_color)
-        self.draw_h_line(x, x + width, y + height, h_icon, fg_color, bg_color)
-        self.draw_v_line(x, y, y + height, v_icon, fg_color, bg_color)
-        self.draw_v_line(x + width, y, y + height, v_icon, fg_color, bg_color)
+        self.plot_h_line(y, x, x + width, h_icon, fg_color, bg_color)
+        self.plot_h_line(y + height, x, x + width, h_icon, fg_color, bg_color)
+        self.plot_v_line(x, y, y + height, v_icon, fg_color, bg_color)
+        self.plot_v_line(x + width, y, y + height, v_icon, fg_color, bg_color)
         self.plot(x, y, bl_icon, fg_color, bg_color)
         self.plot(x + width, y, br_icon, fg_color, bg_color)
         self.plot(x, y + height, tl_icon, fg_color, bg_color)
         self.plot(x + width, y + height, tr_icon, fg_color, bg_color)
 
-    def plot_dict(self, dct, icon='x', fg_color=Color.RESET, bg_color=Color.RESET):
+    def plot_dict(self, dct, map_values=True, cosys=False, icon='x', fg_color=Color.RESET, bg_color=Color.RESET):
         """
         Plots the values of a dict
         :type dct: dict
         :type icon: char
+        :type map_values: bool
+        :type cosys: bool
         :type fg_color: Color
         :type bg_color: Color
-        :param dct: dictionary: a dictionary containing a float as key (x) and a float as value (y)
+        :param dct: dictionary: a dictionary containing a float as key (x) and a float as value (y).
+        If it contains a key and a value which are str, then they will be handled as label of the x- and y- axis.
         :param icon: a single character to display a point
+        :param map_values: map values to the drawing area? true if cosys
+        :param cosys: draw a coordinate system? implicates map_values
         :param fg_color: optional: the fore color of the rectangle
         :param bg_color: optional: the back color of the rectangle
         """
-        val_range = [float('inf'), float('-inf')]
-        key_range = [float('inf'), float('-inf')]
+        x_label = 'x'
+        y_label = 'y'
+        if cosys:
+            val_range = [float(0), float(0)]
+            key_range = [float(0), float(0)]
+        else:
+            val_range = [float('inf'), float('-inf')]
+            key_range = [float('inf'), float('-inf')]
         for key, val in dct.items():
-            key_range[0] = min(key, key_range[0])
-            key_range[1] = max(key, key_range[1])
-            val_range[0] = min(val, val_range[0])
-            val_range[1] = max(val, val_range[1])
+            if isinstance(key, str) or isinstance(val, str):
+                x_label = key
+                y_label = val
+            else:
+                key_range[0] = min(key, key_range[0])
+                key_range[1] = max(key, key_range[1])
+                val_range[0] = min(val, val_range[0])
+                val_range[1] = max(val, val_range[1])
+        if cosys:
+            self.plot_cosys(min_x=key_range[0], max_x=key_range[1],
+                            min_y=val_range[0], max_y=val_range[1], x_label=x_label, y_label=y_label)
         for key, val in dct.items():
-            self.plot(x=int(map_value(val=int(key), min_in=int(key_range[0]), max_in=int(key_range[1]),
-                                      max_out=self.width - 1)),
-                      y=int(map_value(val=int(val), min_in=int(val_range[0]), max_in=int(val_range[1]),
-                                      max_out=self.height - 1)),
-                      icon=icon, fg_color=fg_color, bg_color=bg_color)
+            if not isinstance(key, str) or not isinstance(val, str):
+                if map_values or cosys:
+                    self.plot(x=int(map_value(val=key, min_in=key_range[0], max_in=key_range[1],
+                                              max_out=self.width - 1)),
+                              y=int(map_value(val=val, min_in=val_range[0], max_in=val_range[1],
+                                              max_out=self.height - 1)),
+                              icon=icon, fg_color=fg_color, bg_color=bg_color)
+                else:
+                    self.plot(x=int(key), y=int(val), icon=icon, fg_color=fg_color, bg_color=bg_color)
+
+    def plot_cosys(self, min_x=0, max_x=10, min_y=0, max_y=10, x_label='x', y_label='y',
+                   fg_color=Color.LIGHTBLACK_EX, bg_color=Color.RESET):
+        """
+        Draws a coordinate system in the entire drawing area (unfortunately there are many rounding errors)
+        :type min_x: float
+        :type max_x: float
+        :type min_y: float
+        :type max_y: float
+        :type x_label: str
+        :type y_label: str
+        :type fg_color: Color
+        :type bg_color: Color
+        :param min_x: The minimal x-value, that should be displayed (<= 0)
+        :param max_x: The maximal x-value, that should be displayed
+        :param min_y: The minimal y-value, that should be displayed (<= 0)
+        :param max_y: The maximal y-value, that should be displayed
+        :param x_label: The x-axis description that should be printed
+        :param y_label: The y-axis description that should be printed
+        :param fg_color: optional: the fore color of the coordinate system
+        :param bg_color: optional: the back color of the coordinate system
+        :raise Exception: If the minimal values are bigger than 0
+        """
+        # <editor-fold desc="error check and helper variables">
+        if min_x > 0 or min_y > 0:
+            raise Exception('Sorry, the origin must be included in the range. '
+                            'The ranges are: {min_x} <=x <= {max_x}; {min_y} <= y <= {max_y}'
+                            .format(min_x, max_x, min_y, max_y))
+        origin_x = int(map_value(0, min_x, max_x, 0, self.width - 1))
+        origin_y = int(map_value(0, min_y, max_y, 0, self.height - 1))
+        # the y coordinate for the x labels. For the y label, it must be calculated dynamically:
+        y_coord_x_label = origin_y - 1 if origin_y > 0 else origin_y + 1
+        # </editor-fold>
+        self.plot_v_line(x=origin_x, y2=-1, fg_color=fg_color, bg_color=bg_color)
+        self.plot_h_line(y=origin_y, x2=-1, fg_color=fg_color, bg_color=bg_color)
+        # <editor-fold desc="add legends and origin and arrowheads">
+        self.plot(x=origin_x, y=origin_y, icon='0', fg_color=fg_color, bg_color=bg_color)
+        self.plot(x=origin_x, y=self.height - 1, icon='^', fg_color=fg_color, bg_color=bg_color)
+        self.plot(x=self.width - 1, y=origin_y, icon='>', fg_color=fg_color, bg_color=bg_color)
+        self.plot_label(x=origin_x - len(y_label) if origin_x >= len(y_label) else origin_x + 1,
+                        y=self.height - 1, text=y_label, fg_color=fg_color, bg_color=bg_color)
+        self.plot_label(x=self.width - len(x_label), y=y_coord_x_label, text=x_label,
+                        fg_color=fg_color, bg_color=bg_color)
+        # </editor-fold>
+        # <editor-fold desc="add legend to axis">
+        # <editor-fold desc="add legend to y axis">
+        old_label = ""
+        for y in range(0, self.height - 2, 2):
+            txt = str(round_to_n(map_value(val=float(y), min_in=0, max_in=self.height - 2,
+                                           min_out=min_y, max_out=max_y), n=0 if max_y == 0 else log10(abs(max_y))))
+            if txt != old_label and y != origin_y and txt != '0.0':
+                self.plot(x=origin_x, y=y, icon='–', fg_color=fg_color, bg_color=bg_color)
+                self.plot_label(x=origin_x - len(txt) if origin_x >= len(txt) else origin_x + 1, y=y,
+                                text=txt, fg_color=fg_color, bg_color=bg_color)
+            old_label = txt
+        # </editor-fold>
+        # <editor-fold desc="add legend to x-axis>
+        old_label = ""
+        for x in range(0, self.width - 2, max((2 + len(str(max_x))), self.width / (max_x - min_x), self.width / 20)):
+            txt = str(round_to_n(map_value(val=float(x), min_in=0, max_in=self.width - 2,
+                                           min_out=min_x, max_out=max_x), n=0 if max_x == 0 else log10(abs(max_x))))
+            if txt != old_label and x != origin_x and txt != '0.0':
+                self.plot(x=x, y=origin_y, icon='|', fg_color=fg_color, bg_color=bg_color)
+                self.plot_label(x=x - len(txt) / 2, y=y_coord_x_label,
+                                text=txt, fg_color=fg_color, bg_color=bg_color)
+            old_label = txt
+        # </editor-fold>
+        # </editor-fold>
 
     def draw(self):
         """
@@ -230,8 +328,31 @@ def map_value(val, min_in=0, max_in=100, min_out=0, max_out=100):
     :return: :raise Exception: if maximum values are smaller or equal to minimal values
     or if the input value is not in the allowed range
     """
-    if max_in <= min_in or max_out <= min_out:
-        raise Exception('The max value must be larger than the min value')
+    if max_in == min_in:
+        return (max_out - min_out) / 2
+    if max_in < min_in:
+        raise Exception('The max input value must be larger than the min input value. min={min}; max={max}'
+                        .format(min=max_in, max=max_in))
+    if max_out < min_out:
+        raise Exception('The max output value must be larger than the min output value. min={min}; max={max}'
+                        .format(min=max_in, max=max_in))
     if not min_in <= val <= max_in:
-        raise Exception('The input value is not between the minimal and the maximal input')
+        raise Exception('The input value is not between the minimal and the maximal input.'
+                        ' min={min}; val={val}; max={max}'.format(min=min_in, val=val, max=max_in))
     return min_out + (val - min_in) * (max_out - min_out) / (max_in - min_in)
+
+
+def round_to_n(x, n=2):
+    """
+    Rounds a number to n significant digit
+    :type x: float
+    :param x: the number to round
+    :return: the number x rounded to n significant digit
+    """
+    pre = 1
+    if x < 0:
+        x = -x
+        pre = -1
+    elif x == 0:
+        return 0
+    return pre * round(x, int(n - ceil(log10(abs(x)))))
